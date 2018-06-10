@@ -12,12 +12,11 @@ done
 
 if [ -f ~/.dmove ]; then
 
-    echo "Seems like you just want update dmove"
-    . ~/.dmove
+    echo "dmove config is already exists"
     echo "Current params: "
     cat ~/.dmove
 
-    read -p "Do you want to edit them? y/n : " -n 1 -r
+    read -p "Do you want to edit them? y/n : " -n 1 -r </dev/tty
     echo -e "\n"
     if [[ $REPLY =~ ^[Yy]$ ]]
     then
