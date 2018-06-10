@@ -19,7 +19,7 @@ Config file: `~/.dmove`
 # Installation
 
 ```
-curl -sSL https://raw.githubusercontent.com/pavelsr/dmove/master/install-dmove | sudo bash
+curl -sSL -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/pavelsr/dmove/master/install-dmove | sudo bash
 ```
 
 Just dmove-nginx-proxy:
