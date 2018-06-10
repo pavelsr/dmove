@@ -5,9 +5,13 @@ Set of utilities for fast trasfer dockerized apps to new VDS
 Including:
 
 `move-volume` - move all docker volumes of selected containers (transfer data gzipped)
+
 `move-db` - move sql-like database
+
 `dmove-copy-id` - wrapper under ssh-copy-id, reads hostname from config file
+
 `dmove-config` - generate new config file (conenient if you need to have separate REMOTE_HOST perl user)
+
 `dmove-nginx-proxy` - quick deployment of [nginx-proxy](https://github.com/jwilder/nginx-proxy) container
 
 Config file: `~/.dmove`
