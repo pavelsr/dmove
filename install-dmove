@@ -1,8 +1,8 @@
 #!/bin/bash
 # Run it with sudo
 
-read -e -p "Type default REMOTE_HOST like <login@ip.addr> for all dmove utils : " REMOTE_HOST
-read -e -p "Type default REMOTE_FOLDER for all dmove utils : " REMOTE_FOLDER
+read -p "Type default REMOTE_HOST like <login@ip.addr> for all dmove utils : " REMOTE_HOST
+read -p "Type default REMOTE_FOLDER for all dmove utils : " REMOTE_FOLDER
 
 cat <<EOF > ~/.dmove
 REMOTE_HOST="$REMOTE_HOST"
@@ -20,3 +20,6 @@ done
 
 ssh-copy-id $REMOTE_HOST
 echo "Setup complete! Do not forget to dmove-copy-id if you updated config"
+
+
+curl -sSL https://raw.githubusercontent.com/pavelsr/dmove/master/install-dmove | sudo -

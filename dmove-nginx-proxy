@@ -2,7 +2,7 @@
 
 # defaults
 NETWORK_NAME='nginx-proxy'
-DOCKER_FOLDER='~/nginx-proxy
+DOCKER_FOLDER='~/nginx-proxy'
 
 read -p "Enter default network name for nginx-proxy, default is $NETWORK_NAME : " input
 NETWORK_NAME=${input:-$NETWORK_NAME}

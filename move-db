@@ -6,7 +6,7 @@ echo -e "List of all running docker containers, sorted by name: "
 docker ps --format "{{.Names}}" | sort | column
 
 CONTAINER='mysql'
-read -e -p "Type the name of SQL container which you want to backup, default is $CONTAINER : " input
+read -p "Type the name of SQL container which you want to backup, default is $CONTAINER : " input
 CONTAINER=${input:-$CONTAINER}
 
 MYSQL_ROOT_PASSWORD=$(docker inspect $CONTAINER | jq -r '.[].Config.Env[]' | grep -P "^MYSQL_ROOT_PASSWORD" | cut -d= -f2)
