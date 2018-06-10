@@ -6,7 +6,7 @@ set=(move-volume move-db dmove-copy-id dmove-config dmove-nginx-proxy)
 
 for item in ${set[*]}
 do
-    wget -q https://raw.githubusercontent.com/pavelsr/dmove/master/$item -O /usr/local/bin/$item
+    wget -q -nv https://raw.githubusercontent.com/pavelsr/dmove/master/$item -O /usr/local/bin/$item
     chmod +x /usr/local/bin/$item
 done
 
