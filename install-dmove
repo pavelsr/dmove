@@ -10,6 +10,24 @@ do
     chmod +x /usr/local/bin/$item
 done
 
-dmove-config </dev/tty
+if [ -f ~/.dmove ]; then
+
+    echo "Seems like you just want update dmove"
+    . ~/.dmove
+    echo "Current params: "
+    cat ~/.dmove
+
+    read -p "Do you want to edit them? y/n : " -n 1 -r
+    echo -e "\n"
+    if [[ $REPLY =~ ^[Yy]$ ]]
+    then
+        dmove-config </dev/tty
+    fi
+
+else
+    dmove-config </dev/tty
+fi
+
+echo "Copying your SSH key, be ready to input remote user password"
 dmove-copy-id
 echo "Setup complete! Do not forget to dmove-copy-id if you updated config"
