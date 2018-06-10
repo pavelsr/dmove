@@ -1,0 +1,50 @@
+#!/bin/bash
+echo "Hello, this utility is wrapper under docker commit and will help you to transfer containers"
+echo "Please notice, IT DOES NOT TRANSFER VOLUMES"
+
+. ~/.dmove
+
+echo -e "List of all running docker containers, sorted by name: "
+docker ps --format "{{.Names}}" | sort | column
+
+read -p "Type the name of container which you want to transfer : " CONTAINER
+
+TMP_DIR='/tmp/dmove'
+
+HOSTNAME=$(cat /etc/hostname)
+TAG="$HOSTNAME/$CONTAINER"
+read -p "Type the tag of container, default is $TAG : " input
+TAG=${input:-$TAG}
+
+ID=$(docker commit $CONTAINER $TAG)
+mkdir -p $TMP_DIR
+docker save -o /tmp/dmove/$CONTAINER.tar $ID
+echo "Container is transferring to $REMOTE_HOST:$TMP_DIR"
+ssh $REMOTE_HOST "mkdir -p $TMP_DIR"
+scp $TMP_DIR/$CONTAINER.tar $REMOTE_HOST:$TMP_DIR/$CONTAINER.tar
+ssh $REMOTE_HOST "docker load -i $TMP_DIR/$CONTAINER.tar"
+ssh $REMOTE_HOST "docker tag $ID $TAG"
+
+# Warning about volumes
+echo "Container $CONTAINER has following volumes : "
+docker container inspect -f '{{ range .Mounts }}{{println .Source .Destination}}{{ end }}' $CONTAINER
+echo "You can backup them using move-volume command"
+#TO-DO: automatic transfer
+
+# Warning about mysql data
+if docker inspect --format='{{.Config.Env}}' $CONTAINER | grep -q "MYSQL_"
+    then echo "Seems like you also need to backup database :"
+    docker inspect --format='{{json .Config.Env}}' $CONTAINER | jq . | tr -d '[]", ' | grep 'MYSQL_*'
+fi
+echo "You can backup them using move-db command"
+#TO-DO: automatic transfer
+
+# Warning about DNS records
+VIRTUAL_HOST=$(docker inspect --format='{{json .Config.Env}}' $CONTAINER | jq . | tr -d '[]", ' | grep 'VIRTUAL_HOST' | cut -d= -f2)
+echo "Do not forget to update A DNS records for $VIRTUAL_HOST points to $REMOTE_HOST"
+nslookup -type=a $VIRTUAL_HOST
+#TO-DO: automatic check
+
+# Warning about Docker Hub
+echo "If ENV variables of your container are not contain sensitive data like API keys you can push image to Docker Hub. It is free"
+#TO-DO: push if yes

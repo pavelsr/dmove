@@ -2,7 +2,7 @@
 # Run it with sudo
 
 # Default installation set:
-util_names=(move-volume move-db dmove-copy-id dmove-config dmove-nginx-proxy)
+util_names=(dmove move-volume move-db dmove-copy-id dmove-config dmove-nginx-proxy)
 
 for item in ${util_names[*]}
 do
