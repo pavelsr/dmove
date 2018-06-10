@@ -1,0 +1,8 @@
+#!/bin/bash
+read -e -p "Type default REMOTE_HOST like <login@ip.addr> for all dmove utils : " REMOTE_HOST
+read -e -p "Type default REMOTE_FOLDER for all dmove utils : " REMOTE_FOLDER
+
+cat <<EOF > ~/.dmove
+REMOTE_HOST="$REMOTE_HOST"
+REMOTE_FOLDER="$REMOTE_FOLDER"
+EOF

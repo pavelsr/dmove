@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# defaults
+NETWORK_NAME='nginx-proxy'
+DOCKER_FOLDER='~/nginx-proxy
+
+read -p "Enter default network name for nginx-proxy, default is $NETWORK_NAME : " input
+NETWORK_NAME=${input:-$NETWORK_NAME}
+
+read -p "Enter folder where docker compose and tmpl files will be placed, default is $DOCKER_FOLDER : " input
+DOCKER_FOLDER=${input:-$DOCKER_FOLDER}
+
+docker network create $NETWORK_NAME
+cd $DOCKER_FOLDER
+wget https://raw.githubusercontent.com/jwilder/nginx-proxy/master/nginx.tmpl
+wget https://raw.githubusercontent.com/pavelsr/dmove/master/nginx-proxy.yml -O docker-compose.yml
+docker-compose up -d
+
+echo "You can type  docker-compose logs -f  for checking nginx-proxy logs"

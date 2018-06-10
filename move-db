@@ -1,0 +1,35 @@
+#!/bin/bash
+
+. ~/.dmove
+
+echo -e "List of all running docker containers, sorted by name: "
+docker ps --format "{{.Names}}" | sort | column
+
+CONTAINER='mysql'
+read -e -p "Type the name of SQL container which you want to backup, default is $CONTAINER : " input
+CONTAINER=${input:-$CONTAINER}
+
+MYSQL_ROOT_PASSWORD=$(docker inspect $CONTAINER | jq -r '.[].Config.Env[]' | grep -P "^MYSQL_ROOT_PASSWORD" | cut -d= -f2)
+MYSQL_DATABASE=$(docker inspect $CONTAINER | jq -r '.[].Config.Env[]' | grep -P "^MYSQL_DATABASE" | cut -d= -f2)
+MYSQL_USER=$(docker inspect $CONTAINER | jq -r '.[].Config.Env[]' | grep -P "^MYSQL_USER" | cut -d= -f2)
+MYSQL_PASSWORD=$(docker inspect $CONTAINER | jq -r '.[].Config.Env[]' | grep -P "^MYSQL_PASSWORD" | cut -d= -f2)
+
+if [ -z "${MYSQL_USER}" ]; then
+   MYSQL_USER=root
+fi
+
+if [ -z "${MYSQL_PASSWORD}" ]; then
+   MYSQL_PASSWORD=$MYSQL_ROOT_PASSWORD
+fi
+
+read -p "Type the remote host details, default is $REMOTE_HOST: " input
+REMOTE_HOST=${input:-$REMOTE_HOST}
+
+read -p "Specify full path to existing remote folder, default is $REMOTE_FOLDER: " input
+REMOTE_FOLDER=${input:-$REMOTE_FOLDER}
+
+docker exec $CONTAINER sh -c "exec /usr/bin/mysqldump -u$MYSQL_USER -p$MYSQL_PASSWORD $MYSQL_DATABASE" > backup.sql
+
+ssh $REMOTE_HOST "mkdir -p $REMOTE_FOLDER"
+scp backup.sql $REMOTE_HOST:$REMOTE_FOLDER
+rm backup.sql
