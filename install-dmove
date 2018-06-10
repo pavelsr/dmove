@@ -2,9 +2,9 @@
 # Run it with sudo
 
 # Default installation set:
-set=(move-volume move-db dmove-copy-id dmove-config dmove-nginx-proxy)
+util_names=(move-volume move-db dmove-copy-id dmove-config dmove-nginx-proxy)
 
-for item in ${set[*]}
+for item in ${util_names[*]}
 do
     wget -q -nv https://raw.githubusercontent.com/pavelsr/dmove/master/$item -O /usr/local/bin/$item
     chmod +x /usr/local/bin/$item
