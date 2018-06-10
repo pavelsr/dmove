@@ -15,14 +15,7 @@ if [ -f ~/.dmove ]; then
     echo "dmove config is already exists"
     echo "Current params: "
     cat ~/.dmove
-
-    read -p "Do you want to edit them? y/n : " -n 1 -r </dev/tty
-    echo -e "\n"
-    if [[ $REPLY =~ ^[Yy]$ ]]
-    then
-        dmove-config </dev/tty
-    fi
-
+    
 else
     dmove-config </dev/tty
 fi
