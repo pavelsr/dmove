@@ -10,6 +10,6 @@ do
     chmod +x /usr/local/bin/$item
 done
 
-dmove-config
+dmove-config </dev/tty
 dmove-copy-id
 echo "Setup complete! Do not forget to dmove-copy-id if you updated config"
