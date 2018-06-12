@@ -17,11 +17,11 @@ TAG="$HOSTNAME/$CONTAINER"
 read -p "Type the tag of container, default is $TAG : " input
 TAG=${input:-$TAG}
 
-ID=$(docker commit $CONTAINER $TAG | cut -d: -f2)  # return 'sha256:...'
+IMAGE_ID=$(docker commit $CONTAINER $TAG-backup | cut -d: -f2)  # return 'sha256:...'
 mkdir -p $TMP_DIR
-docker save -o /tmp/dmove/$CONTAINER.tar $ID
+docker save -o /tmp/dmove/$CONTAINER.tar $IMAGE_ID
 echo "Container is transferring to $REMOTE_HOST:$TMP_DIR"
 ssh $REMOTE_HOST "mkdir -p $TMP_DIR"
 scp $TMP_DIR/$CONTAINER.tar $REMOTE_HOST:$TMP_DIR/$CONTAINER.tar
 ssh $REMOTE_HOST "docker load -i $TMP_DIR/$CONTAINER.tar"
-ssh $REMOTE_HOST "docker tag $ID $TAG"
+ssh $REMOTE_HOST "docker tag $IMAGE_ID $TAG"
