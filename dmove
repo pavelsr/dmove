@@ -31,13 +31,19 @@ docker container inspect -f '{{ range .Mounts }}{{println .Source .Destination}}
 echo "You can backup them using move-volume command"
 #TO-DO: automatic transfer
 
+# docker container inspect -f '{{ range .Mounts }}{{println .Source .Destination}}{{ end }}' osticket
+
 # Warning about mysql data
 if docker inspect --format='{{.Config.Env}}' $CONTAINER | grep -q "MYSQL_"
     then echo "Seems like you also need to backup database :"
     docker inspect --format='{{json .Config.Env}}' $CONTAINER | jq . | tr -d '[]", ' | grep 'MYSQL_*'
+    read -p "Would you like to backup SQL database now ?" -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]
+    then
+        move-db $CONTAINER
+    fi
 fi
-echo "You can backup them using move-db command"
-#TO-DO: automatic transfer
 
 # Warning about DNS records
 VIRTUAL_HOST=$(docker inspect --format='{{json .Config.Env}}' $CONTAINER | jq . | tr -d '[]", ' | grep 'VIRTUAL_HOST' | cut -d= -f2)

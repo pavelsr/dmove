@@ -2,12 +2,14 @@
 
 . ~/.dmove
 
-echo -e "List of all running docker containers, sorted by name: "
-docker ps --format "{{.Names}}" | sort | column
+CONTAINER=$1
 
-CONTAINER='mysql'
-read -p "Type the name of SQL container which you want to backup, default is $CONTAINER : " input
-CONTAINER=${input:-$CONTAINER}
+if [ -z $1 ]; then
+    echo -e "List of all running docker containers, sorted by name: "
+    docker ps --format "{{.Names}}" | sort | column
+    read -p "Type the name of SQL container which you want to backup, default is $CONTAINER : " input
+    CONTAINER=${input:-$CONTAINER}
+fi
 
 MYSQL_ROOT_PASSWORD=$(docker inspect $CONTAINER | jq -r '.[].Config.Env[]' | grep -P "^MYSQL_ROOT_PASSWORD" | cut -d= -f2)
 MYSQL_DATABASE=$(docker inspect $CONTAINER | jq -r '.[].Config.Env[]' | grep -P "^MYSQL_DATABASE" | cut -d= -f2)

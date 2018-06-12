@@ -2,8 +2,14 @@
 
 . ~/.dmove
 
-read -p "Type the name of container which you want to backup, default is $CONTAINER : " input
-CONTAINER=${input:-$CONTAINER}
+CONTAINER=$1
+
+if [ -z $1 ]; then
+    echo -e "List of all running docker containers, sorted by name: "
+    docker ps --format "{{.Names}}" | sort | column
+	read -p "Type the name of container which you want to backup, default is $CONTAINER : " input
+	CONTAINER=${input:-$CONTAINER}
+fi
 
 read -p "Type the remote host details, default is $REMOTE_HOST: " input
 REMOTE_HOST=${input:-$REMOTE_HOST}
@@ -11,11 +17,34 @@ REMOTE_HOST=${input:-$REMOTE_HOST}
 read -p "Specify full path to remote folder, where you want to copy volume data, default is $REMOTE_FOLDER: " input
 REMOTE_FOLDER=${input:-$REMOTE_FOLDER}
 
-for row in $(docker inspect $CONTAINER | jq -cr '.[].Mounts[].Source'); do
-	echo "Working with volume ${row}"
-	cd ${row}
-	tar -zcvf $CONTAINER.tar.gz *
-	ssh $REMOTE_HOST "mkdir -p $REMOTE_FOLDER"
-	scp $CONTAINER.tar.gz $REMOTE_HOST:$REMOTE_FOLDER/..
-	ssh $REMOTE_HOST "tar -xvf $REMOTE_FOLDER/../$CONTAINER.tar.gz -C $REMOTE_FOLDER"
+
+inspect=$(docker inspect -f '{{ range .Mounts }}{{println .Source .Destination}}{{ end }}' osticket)
+VOLUMES=(${inspect})
+curr_source=""
+curr_destination=""
+curr_volume_name=""
+
+for i in "${!VOLUMES[@]}"; do
+
+	if [ $((i%2)) -eq 0 ]; then
+  	  curr_source=${VOLUMES[$i]}
+    else
+  	  curr_destination=${VOLUMES[$i]}
+  	  curr_volume_name=${curr_destination##*/}
+    fi
+
+    if [[ -n $curr_source && -n $curr_destination ]]; then
+		# echo "S: $curr_source, D: $curr_destination, V: $curr_volume_name"
+		echo "Working with volume $curr_destination ..."
+		cd ${curr_destination}
+		tar -zcvf $CONTAINER-$curr_volume_name.tar.gz *
+		ssh $REMOTE_HOST "mkdir -p $REMOTE_FOLDER/$curr_volume_name"
+		scp $CONTAINER-$curr_volume_name.tar.gz $REMOTE_HOST:$REMOTE_FOLDER
+		ssh $REMOTE_HOST "tar -xvf $REMOTE_FOLDER/$CONTAINER-$curr_volume_name.tar.gz -C $REMOTE_FOLDER/$curr_volume_name"
+		rm $CONTAINER-$curr_volume_name.tar.gz
+	  	curr_source=""
+	  	curr_destination=""
+	  	curr_volume_name=""
+    fi
+
 done

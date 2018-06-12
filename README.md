@@ -35,7 +35,3 @@ sudo wget https://raw.githubusercontent.com/pavelsr/dmove/master/install-dmove-n
 ## See more
 
 Similar project: https://github.com/tubesandlube/blimp
-
-
-REMOTE_HOST='admin@193.124.205.64'
-REMOTE_FOLDER='/home/admin/inbox/' # where .sql file will be stored
