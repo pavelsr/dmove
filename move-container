@@ -17,7 +17,7 @@ TAG="$HOSTNAME/$CONTAINER"
 read -p "Type the tag of container, default is $TAG : " input
 TAG=${input:-$TAG}
 
-ID=$(docker commit $CONTAINER $TAG)
+ID=$(docker commit $CONTAINER $TAG | cut -d: -f2)  # return 'sha256:...'
 mkdir -p $TMP_DIR
 docker save -o /tmp/dmove/$CONTAINER.tar $ID
 echo "Container is transferring to $REMOTE_HOST:$TMP_DIR"
