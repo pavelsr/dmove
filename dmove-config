@@ -1,6 +1,15 @@
 #!/bin/bash
+
+if [ -f ~/.dmove ]; then
+
+    echo "dmove config is already exists"
+    echo "Current params: "
+    cat ~/.dmove
+
+fi
+
 read -p "Type default REMOTE_HOST like <login@ip.addr> for all dmove utils : " REMOTE_HOST
-read -p "Type default REMOTE_FOLDER for all dmove utils : " REMOTE_FOLDER
+read -p "Type default REMOTE_FOLDER for all dmove utils, without slash and the end : " REMOTE_FOLDER
 
 cat <<EOF > ~/.dmove
 REMOTE_HOST="$REMOTE_HOST"

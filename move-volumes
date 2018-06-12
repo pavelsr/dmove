@@ -23,6 +23,7 @@ VOLUMES=(${inspect})
 curr_source=""
 curr_destination=""
 curr_volume_name=""
+volumes_mount_string=""
 
 for i in "${!VOLUMES[@]}"; do
 
@@ -42,9 +43,16 @@ for i in "${!VOLUMES[@]}"; do
 		scp $CONTAINER-$curr_volume_name.tar.gz $REMOTE_HOST:$REMOTE_FOLDER
 		ssh $REMOTE_HOST "tar -xvf $REMOTE_FOLDER/$CONTAINER-$curr_volume_name.tar.gz -C $REMOTE_FOLDER/$curr_volume_name"
 		rm $CONTAINER-$curr_volume_name.tar.gz
+		volumes_mount_string="$volumes_mount_string --mount source=$REMOTE_FOLDER/$curr_volume_name,destination=$curr_destination"
 	  	curr_source=""
 	  	curr_destination=""
 	  	curr_volume_name=""
     fi
 
 done
+
+
+if [ -n $2 ]; then
+    echo -e "Starting container from image $2"
+	ssh $REMOTE_HOST "docker run -d $volumes_mount_string $2"
+fi

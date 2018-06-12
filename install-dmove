@@ -2,7 +2,7 @@
 # Run it with sudo
 
 # Default installation set:
-util_names=(dmove move-volume move-db dmove-copy-id dmove-config dmove-nginx-proxy)
+util_names=(dmove move-volumes move-db dmove-copy-id dmove-config dmove-nginx-proxy)
 
 for item in ${util_names[*]}
 do
@@ -15,7 +15,7 @@ if [ -f ~/.dmove ]; then
     echo "dmove config is already exists"
     echo "Current params: "
     cat ~/.dmove
-    
+
 else
     dmove-config </dev/tty
 fi

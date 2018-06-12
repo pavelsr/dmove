@@ -1,6 +1,5 @@
 #!/bin/bash
-echo "Hello, this utility is wrapper under docker commit and will help you to transfer containers"
-echo "Please notice, IT DOES NOT TRANSFER VOLUMES"
+echo "Hello, this utility is wrapper under docker commit and will help you to transfer containers with volumes"
 
 . ~/.dmove
 
@@ -25,32 +24,46 @@ scp $TMP_DIR/$CONTAINER.tar $REMOTE_HOST:$TMP_DIR/$CONTAINER.tar
 ssh $REMOTE_HOST "docker load -i $TMP_DIR/$CONTAINER.tar"
 ssh $REMOTE_HOST "docker tag $ID $TAG"
 
-# Warning about volumes
-echo "Container $CONTAINER has following volumes : "
-docker container inspect -f '{{ range .Mounts }}{{println .Source .Destination}}{{ end }}' $CONTAINER
-echo "You can backup them using move-volume command"
-#TO-DO: automatic transfer
+# Auto transfer volumes
+if docker container inspect -f '{{ range .Mounts }}{{println .Source .Destination}}{{ end }}' $CONTAINER; then
 
-# docker container inspect -f '{{ range .Mounts }}{{println .Source .Destination}}{{ end }}' osticket
+    echo "Container $CONTAINER has following volumes : "
+    docker container inspect -f '{{ range .Mounts }}{{println .Source .Destination}}{{ end }}' $CONTAINER
 
-# Warning about mysql data
-if docker inspect --format='{{.Config.Env}}' $CONTAINER | grep -q "MYSQL_"
-    then echo "Seems like you also need to backup database :"
-    docker inspect --format='{{json .Config.Env}}' $CONTAINER | jq . | tr -d '[]", ' | grep 'MYSQL_*'
-    read -p "Would you like to backup SQL database now ?" -n 1 -r
-    echo
-    if [[ $REPLY =~ ^[Yy]$ ]]
-    then
-        move-db $CONTAINER
+    read -p "Would you like to move volumes now ?" -n 1 -r
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        move-volumes $CONTAINER $TAG
     fi
+
+else
+    echo "Container $CONTAINER does not have any volumes"
+fi
+
+# Auto transfer mysql data
+if docker inspect --format='{{.Config.Env}}' $CONTAINER | grep -q "MYSQL_"; then
+    echo "Seems like you also need to backup database :"
+    docker inspect --format='{{json .Config.Env}}' $CONTAINER | jq . | tr -d '[]", ' | grep 'MYSQL_*'
+    read -p "Would you like to backup SQL database now ? " -n 1 -r
+    echo
+
+    # TO-DO: warning about unique hostname or create a separate docker network
+    # pass hostname or transfer database container as image to save ENV variables
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        move-db $CONTAINER $DB_IMAGE_TAG
+    fi
+
 fi
 
 # Warning about DNS records
-VIRTUAL_HOST=$(docker inspect --format='{{json .Config.Env}}' $CONTAINER | jq . | tr -d '[]", ' | grep 'VIRTUAL_HOST' | cut -d= -f2)
-echo "Do not forget to update A DNS records for $VIRTUAL_HOST points to $REMOTE_HOST"
-nslookup -type=a $VIRTUAL_HOST
-#TO-DO: automatic check
+if docker inspect --format='{{.Config.Env}}' $CONTAINER | grep -q "VIRTUAL_HOST"
+    VIRTUAL_HOST=$(docker inspect --format='{{json .Config.Env}}' $CONTAINER | jq . | tr -d '[]", ' | grep 'VIRTUAL_HOST' | cut -d= -f2)
+    echo "Do not forget to update A DNS records for $VIRTUAL_HOST points to $REMOTE_HOST"
+    nslookup -type=a $VIRTUAL_HOST
+    # TO-DO: automatic adding via popular APIs: CloudFlare, Digitalocean, Reg.ru, Yandex DNS
+fi
 
 # Warning about Docker Hub
 echo "If ENV variables of your container are not contain sensitive data like API keys you can push image to Docker Hub. It is free"
-#TO-DO: push if yes
+# TO-DO: push if yes
+
+# TO-DO: Warning about bad image versionning in case of transfering docker-compose file
