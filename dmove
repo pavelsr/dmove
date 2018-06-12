@@ -23,7 +23,7 @@ if docker inspect -f '{{ range .Mounts }}{{println .Source .Destination}}{{ end 
     read -p "Would you like to move volumes now? " -n 1 -r
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
-        move-volumes "$CONTAINER $TAG nginx-proxy"
+        move-volumes "$CONTAINER" "$TAG" nginx-proxy
     fi
 
 else
