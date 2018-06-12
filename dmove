@@ -1,12 +1,16 @@
 #!/bin/bash
-echo "Hello, this utility is wrapper under docker commit and will help you to transfer containers with volumes"
+echo "Hello, this utility will help you to transfer containers with volumes"
 
 . ~/.dmove
 
-echo -e "List of all running docker containers, sorted by name: "
-docker ps --format "{{.Names}}" | sort | column
+CONTAINER=$1
 
-read -p "Type the name of container which you want to transfer : " CONTAINER
+if [ -z $1 ]; then
+    echo -e "List of all running docker containers, sorted by name: "
+    docker ps --format "{{.Names}}" | sort | column
+    read -p "Type the name of SQL container which you want to backup, default is $CONTAINER : " input
+    CONTAINER=${input:-$CONTAINER}
+fi
 
 TMP_DIR='/tmp/dmove'
 
