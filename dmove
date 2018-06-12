@@ -12,7 +12,7 @@ if [ -z $CONTAINER ]; then
     CONTAINER=${input:-$CONTAINER}
 fi
 
-move-container $CONTAINER
+move-container "$CONTAINER"
 
 # Auto transfer volumes
 if docker inspect -f '{{ range .Mounts }}{{println .Source .Destination}}{{ end }}' $CONTAINER ; then
@@ -23,7 +23,7 @@ if docker inspect -f '{{ range .Mounts }}{{println .Source .Destination}}{{ end 
     read -p "Would you like to move volumes now? " -n 1 -r
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
-        move-volumes $CONTAINER $TAG nginx-proxy
+        move-volumes "$CONTAINER $TAG nginx-proxy"
     fi
 
 else
@@ -45,8 +45,8 @@ if docker inspect --format='{{.Config.Env}}' $CONTAINER | grep -q "MYSQL_HOST" ;
         DB_CONTAINER_NAME="$CONTAINER$db_suffix"
         read -p "Type the name of database container, default is $CONTAINER$db_suffix: " input
         DB_CONTAINER_NAME=${input:-$DB_CONTAINER_NAME}
-        move-container $DB_CONTAINER_NAME   # to save ENV # TO-DO: return image tag to fill insted $HOSTNAME/$DB_CONTAINER_NAME
-        move-db $CONTAINER "$HOSTNAME/$DB_CONTAINER_NAME" nginx-proxy $MYSQL_HOST 1  # make deploy
+        move-container "$DB_CONTAINER_NAME"   # to save ENV # TO-DO: return image tag to fill insted $HOSTNAME/$DB_CONTAINER_NAME
+        move-db "$CONTAINER $HOSTNAME/$DB_CONTAINER_NAME nginx-proxy $MYSQL_HOST 1"  # make deploy
     fi
 
 fi
