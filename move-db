@@ -34,15 +34,26 @@ docker exec $CONTAINER sh -c "exec /usr/bin/mysqldump -u$MYSQL_USER -p$MYSQL_PAS
 
 ssh $REMOTE_HOST "mkdir -p $REMOTE_FOLDER"
 scp backup.sql $REMOTE_HOST:$REMOTE_FOLDER
+echo "Database transfered to $REMOTE_HOST:$REMOTE_FOLDER/backup.sql"
 rm backup.sql
+
 
 if [ -n $2 ]; then
     echo -e "Running container image $2"
-    volumes_mount_string="--mount source=$REMOTE_FOLDER/backup.sql,destination=/docker-entrypoint-initdb.d/backup.sql"
-    ssh $REMOTE_HOST "docker run -d $volumes_mount_string $2"
-fi
+    CONTAINER_NAME=$(echo $2 | cut -d/ -f2)
+    run_opts="-v $REMOTE_FOLDER/backup.sql:/docker-entrypoint-initdb.d/backup.sql --rm --name $CONTAINER_NAME"
 
-# make sql volume inside $REMOTE_FOLDER or no
-# if [ -n $3 ]; then
-#
-# fi
+    if [ -n $3 ]; then
+        run_opts="$run_opts --network $3"
+    fi
+
+    if [ -n $4 ]; then
+        run_opts="$run_opts --hostname $4"
+    fi
+
+    if [ -n $5 ]; then
+        run_opts="$run_opts -v $REMOTE_FOLDER/sql:/var/lib/mysql"
+    fi
+
+	ssh $REMOTE_HOST "docker run -d $run_opts $2"
+fi

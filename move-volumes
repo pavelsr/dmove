@@ -55,5 +55,11 @@ done
 
 if [ -n $2 ]; then
     echo -e "Starting container from image $2"
-	ssh $REMOTE_HOST "docker run -d $volumes_mount_string $2"
+    run_opts="$volumes_mount_string --rm --name $CONTAINER"
+
+    if [ -n $3 ]; then
+        run_opts="$run_opts --network $3"
+    fi
+
+	ssh $REMOTE_HOST "docker run -d $run_opts $2"
 fi
