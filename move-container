@@ -4,10 +4,10 @@
 
 CONTAINER=$1
 
-if [ -z $1 ]; then
+if [ -z $CONTAINER ]; then
     echo -e "List of all running docker containers, sorted by name: "
     docker ps --format "{{.Names}}" | sort | column
-    read -p "Type the name of SQL container which you want to backup, default is $CONTAINER : " input
+    read -p "Type the name of container which you want to backup, default is $CONTAINER : " input
     CONTAINER=${input:-$CONTAINER}
 fi
 
