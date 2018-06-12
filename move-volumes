@@ -61,5 +61,7 @@ if [ -n $2 ]; then
         run_opts="$run_opts --network $3"
     fi
 
-	ssh $REMOTE_HOST "docker run -d $run_opts $2"
+    echo $run_opts
+	STD_OUT=$(ssh $REMOTE_HOST "docker run -d $run_opts $2")
+    echo $STD_OUT
 fi
