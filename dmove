@@ -9,10 +9,10 @@ echo "Moving container image ..."
 move-container $CONTAINER
 
 # Auto transfer volumes
-if docker container inspect -f '{{ range .Mounts }}{{println .Source .Destination}}{{ end }}' $CONTAINER; then
+if [[ docker inspect -f '{{ range .Mounts }}{{println .Source .Destination}}{{ end }}' $CONTAINER ]]; then
 
     echo "Container $CONTAINER has following volumes : "
-    docker container inspect -f '{{ range .Mounts }}{{println .Source .Destination}}{{ end }}' $CONTAINER
+    docker inspect -f '{{ range .Mounts }}{{println .Source .Destination}}{{ end }}' $CONTAINER
 
     read -p "Would you like to move volumes now? " -n 1 -r
     echo
@@ -26,7 +26,7 @@ fi
 
 
 # Auto transfer mysql data
-if docker inspect --format='{{.Config.Env}}' $CONTAINER | grep -q "MYSQL_HOST"; then
+if [[ docker inspect --format='{{.Config.Env}}' $CONTAINER | grep -q "MYSQL_HOST" ]]; then
     echo "Seems like you also need to backup database! ENV variables related to SQL containers founded: "
     docker inspect --format='{{json .Config.Env}}' $CONTAINER | jq . | tr -d '[]", ' | grep 'MYSQL_*'
     read -p "Would you like to backup SQL database now ? " -n 1 -r
@@ -46,7 +46,7 @@ if docker inspect --format='{{.Config.Env}}' $CONTAINER | grep -q "MYSQL_HOST"; 
 fi
 
 # Warning about DNS records
-if docker inspect --format='{{.Config.Env}}' $CONTAINER | grep -q "VIRTUAL_HOST"; then
+if [[ docker inspect --format='{{.Config.Env}}' $CONTAINER | grep -q "VIRTUAL_HOST" ]]; then
     VIRTUAL_HOST=$(docker inspect --format='{{json .Config.Env}}' $CONTAINER | jq . | tr -d '[]", ' | grep 'VIRTUAL_HOST' | cut -d= -f2)
     echo "Do not forget to update A DNS records for $VIRTUAL_HOST points to $REMOTE_HOST"
     nslookup -type=a $VIRTUAL_HOST
