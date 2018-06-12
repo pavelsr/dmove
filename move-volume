@@ -37,7 +37,7 @@ for i in "${!VOLUMES[@]}"; do
 		echo "S: $curr_source, D: $curr_destination, V: $curr_volume_name"
 		echo "Working with container volume $curr_source ..."
 		cd ${curr_source}
-		tar -zcvf --exclude="$CONTAINER-$curr_volume_name.tar.gz" $CONTAINER-$curr_volume_name.tar.gz *
+		tar -zcf --exclude="$CONTAINER-$curr_volume_name.tar.gz" $CONTAINER-$curr_volume_name.tar.gz *
 		ssh $REMOTE_HOST "mkdir -p $REMOTE_FOLDER/$curr_volume_name"
 		scp $CONTAINER-$curr_volume_name.tar.gz $REMOTE_HOST:$REMOTE_FOLDER
 		ssh $REMOTE_HOST "tar -xvf $REMOTE_FOLDER/$CONTAINER-$curr_volume_name.tar.gz -C $REMOTE_FOLDER/$curr_volume_name"
