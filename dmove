@@ -34,7 +34,7 @@ if docker container inspect -f '{{ range .Mounts }}{{println .Source .Destinatio
     echo "Container $CONTAINER has following volumes : "
     docker container inspect -f '{{ range .Mounts }}{{println .Source .Destination}}{{ end }}' $CONTAINER
 
-    read -p "Would you like to move volumes now ?" -n 1 -r
+    read -p "Would you like to move volumes now? " -n 1 -r
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         move-volumes $CONTAINER $TAG
     fi

@@ -43,7 +43,8 @@ for i in "${!VOLUMES[@]}"; do
 		scp $CONTAINER-$curr_volume_name.tar.gz $REMOTE_HOST:$REMOTE_FOLDER
 		ssh $REMOTE_HOST "tar -xvf $REMOTE_FOLDER/$CONTAINER-$curr_volume_name.tar.gz -C $REMOTE_FOLDER/$curr_volume_name"
 		rm $CONTAINER-$curr_volume_name.tar.gz
-		volumes_mount_string="$volumes_mount_string --mount source=$REMOTE_FOLDER/$curr_volume_name,destination=$curr_destination"
+		#volumes_mount_string="$volumes_mount_string --mount source=$REMOTE_FOLDER/$curr_volume_name,destination=$curr_destination"
+		volumes_mount_string="$volumes_mount_string -v $REMOTE_FOLDER/$curr_volume_name:$curr_destination"
 	  	curr_source=""
 	  	curr_destination=""
 	  	curr_volume_name=""
