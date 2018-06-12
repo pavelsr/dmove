@@ -4,6 +4,14 @@ echo "Hello, this utility will help you to transfer containers with volumes"
 . ~/.dmove
 
 CONTAINER=$1
+
+if [ -z $CONTAINER ]; then
+    echo -e "List of all running docker containers, sorted by name: "
+    docker ps --format "{{.Names}}" | sort | column
+    read -p "Type the name of container which you want to backup, default is $CONTAINER : " input
+    CONTAINER=${input:-$CONTAINER}
+fi
+
 move-container $CONTAINER
 
 # Auto transfer volumes
