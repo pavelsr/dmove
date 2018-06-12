@@ -35,8 +35,8 @@ for i in "${!VOLUMES[@]}"; do
 
     if [[ -n $curr_source && -n $curr_destination ]]; then
 		# echo "S: $curr_source, D: $curr_destination, V: $curr_volume_name"
-		echo "Working with volume $curr_destination ..."
-		cd ${curr_destination}
+		echo "Working with volume $curr_source ..."
+		cd ${curr_source}
 		tar -zcvf $CONTAINER-$curr_volume_name.tar.gz *
 		ssh $REMOTE_HOST "mkdir -p $REMOTE_FOLDER/$curr_volume_name"
 		scp $CONTAINER-$curr_volume_name.tar.gz $REMOTE_HOST:$REMOTE_FOLDER
