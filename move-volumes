@@ -63,5 +63,5 @@ if [ -n $2 ]; then
     fi
 
     echo $run_opts
-	ssh "${REMOTE_HOST}" "docker run -d ${run_opts} $2"
+	ssh "${REMOTE_HOST}" "docker run -d" "${run_opts}" "$2"
 fi
