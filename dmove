@@ -5,14 +5,6 @@ echo "Hello, this utility will help you to transfer containers with volumes"
 
 CONTAINER=$1
 
-if [ -z $1 ]; then
-    echo -e "List of all running docker containers, sorted by name: "
-    docker ps --format "{{.Names}}" | sort | column
-    read -p "Type the name of SQL container which you want to backup, default is $CONTAINER : " input
-    CONTAINER=${input:-$CONTAINER}
-fi
-
-
 echo "Moving container image ..."
 move-container $CONTAINER
 
@@ -23,6 +15,7 @@ if docker container inspect -f '{{ range .Mounts }}{{println .Source .Destinatio
     docker container inspect -f '{{ range .Mounts }}{{println .Source .Destination}}{{ end }}' $CONTAINER
 
     read -p "Would you like to move volumes now? " -n 1 -r
+    echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         move-volumes $CONTAINER $TAG nginx-proxy
     fi
@@ -39,17 +32,14 @@ if docker inspect --format='{{.Config.Env}}' $CONTAINER | grep -q "MYSQL_HOST"; 
     read -p "Would you like to backup SQL database now ? " -n 1 -r
     echo
 
-    # docker inspect --format='{{json .Config.Env}}' osticket | jq . | tr -d '[]", ' | grep 'MYSQL_*
-
-    # TO-DO: warning about unique hostname or create a separate docker network
-    # pass hostname or transfer database container as image to save ENV variables
+    # TO-DO: warning about unique hostname and creation of separate docker network
     if [[ $REPLY =~ ^[Yy]$ ]]; then
-        MYSQL_HOST=$(docker inspect --format='{{json .Config.Env}}' osticket | jq . | tr -d '[]", ' | grep 'MYSQL_HOST' | cut -d= -f2)
+        MYSQL_HOST=$(docker inspect --format='{{json .Config.Env}}' $CONTAINER | jq . | tr -d '[]", ' | grep 'MYSQL_HOST' | cut -d= -f2)
         db_suffix="_db"  # convention
         DB_CONTAINER_NAME="$CONTAINER$db_suffix"
         read -p "Type the name of database container, default is $CONTAINER$db_suffix: " input
         DB_CONTAINER_NAME=${input:-$DB_CONTAINER_NAME}
-        move-container $DB_CONTAINER_NAME   # to save ENV # TO-DO: return image tag
+        move-container $DB_CONTAINER_NAME   # to save ENV # TO-DO: return image tag to fill insted $HOSTNAME/$DB_CONTAINER_NAME
         move-db $CONTAINER "$HOSTNAME/$DB_CONTAINER_NAME" nginx-proxy $MYSQL_HOST 1  # make deploy
     fi
 
