@@ -18,7 +18,7 @@ read -p "Specify full path to remote folder, where you want to copy volume data,
 REMOTE_FOLDER=${input:-$REMOTE_FOLDER}
 
 
-inspect=$(docker inspect -f '{{ range .Mounts }}{{println .Source .Destination}}{{ end }}' osticket)
+inspect=$(docker inspect -f '{{ range .Mounts }}{{println .Source .Destination}}{{ end }}' $CONTAINER)
 VOLUMES=(${inspect})
 curr_source=""
 curr_destination=""
@@ -34,8 +34,8 @@ for i in "${!VOLUMES[@]}"; do
     fi
 
     if [[ -n $curr_source && -n $curr_destination ]]; then
-		# echo "S: $curr_source, D: $curr_destination, V: $curr_volume_name"
-		echo "Working with volume $curr_source ..."
+		echo "S: $curr_source, D: $curr_destination, V: $curr_volume_name"
+		echo "Working with container volume $curr_source ..."
 		cd ${curr_source}
 		tar -zcvf $CONTAINER-$curr_volume_name.tar.gz *
 		ssh $REMOTE_HOST "mkdir -p $REMOTE_FOLDER/$curr_volume_name"
