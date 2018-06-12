@@ -58,6 +58,7 @@ if [ -n $2 ]; then
     run_opts="$volumes_mount_string --rm --name $CONTAINER"
 
     if [ -n $3 ]; then
+        echo "Container will be connected to $3 network"
         run_opts="$run_opts --network $3"
     fi
 
